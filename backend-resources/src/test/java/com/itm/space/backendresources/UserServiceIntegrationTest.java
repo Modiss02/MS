@@ -53,10 +53,8 @@ public class UserServiceIntegrationTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        // Настройка мока Keycloak для возврата мока RealmResource
         when(keycloakClient.realm(anyString())).thenReturn(realmResource);
 
-        // Настройка мока RealmResource для возврата мока UsersResource
         when(realmResource.users()).thenReturn(usersResource);
     }
 
@@ -74,18 +72,15 @@ public class UserServiceIntegrationTest {
         userRepresentation.setCredentials(Collections.singletonList(credential));
 
         try (Response response = mock(Response.class)) {
-            when(response.getStatus()).thenReturn(201); // HTTP 201 Created
-            when(response.getStatusInfo()).thenReturn(Status.CREATED); // Correct return type
+            when(response.getStatus()).thenReturn(201);
+            when(response.getStatusInfo()).thenReturn(Status.CREATED);
             when(usersResource.create(any(UserRepresentation.class))).thenReturn(response);
 
-            // Mock CreatedResponseUtil.getCreatedId() if needed
             String createdId = UUID.randomUUID().toString();
             when(CreatedResponseUtil.getCreatedId(response)).thenReturn(createdId);
 
-            // Create user and verify result
             userService.createUser(userRequest);
 
-            // Verify create method is called
             verify(usersResource).create(any(UserRepresentation.class));
         }
     }
@@ -94,13 +89,11 @@ public class UserServiceIntegrationTest {
     public void testCreateUser_Failure() {
         UserRequest userRequest = new UserRequest("username", "email@example.com", "password", "firstName", "lastName");
 
-        // Create mock Response with error status
         try (Response response = mock(Response.class)) {
-            when(response.getStatus()).thenReturn(409); // HTTP 409 Conflict
-            when(response.getStatusInfo()).thenReturn(Status.CONFLICT); // Correct return type
+            when(response.getStatus()).thenReturn(409);
+            when(response.getStatusInfo()).thenReturn(Status.CONFLICT);
             when(usersResource.create(any(UserRepresentation.class))).thenReturn(response);
 
-            // Verify that BackendResourcesException is thrown
             BackendResourcesException thrownException = assertThrows(BackendResourcesException.class, () -> userService.createUser(userRequest));
             assertEquals("User already exists", thrownException.getMessage());
         }
@@ -113,12 +106,9 @@ public class UserServiceIntegrationTest {
         userRepresentation.setUsername("username");
         userRepresentation.setEmail("email@example.com");
 
-        // Mocking usersResource.get() to return userResource
         when(usersResource.get(userId.toString())).thenReturn(userResource);
-        // Mocking userResource.toRepresentation() to return userRepresentation
         when(userResource.toRepresentation()).thenReturn(userRepresentation);
 
-        // Mocking userMapper to return a UserResponse
         UserResponse userResponse = new UserResponse("firstName", "lastName", "email@example.com", Collections.emptyList(), Collections.emptyList());
         when(userMapper.userRepresentationToUserResponse(any(UserRepresentation.class), anyList(), anyList())).thenReturn(userResponse);
 
@@ -133,10 +123,8 @@ public class UserServiceIntegrationTest {
     public void testGetUserById_NotFound() {
         UUID userId = UUID.randomUUID();
 
-        // Ensure the mock usersResource.get() throws an exception
         when(usersResource.get(userId.toString())).thenThrow(new WebApplicationException("User not found", Status.NOT_FOUND));
 
-        // Verify that BackendResourcesException is thrown
         assertThrows(BackendResourcesException.class, () -> userService.getUserById(userId));
     }
 }
