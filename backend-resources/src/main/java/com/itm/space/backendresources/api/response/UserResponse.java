@@ -1,10 +1,12 @@
 package com.itm.space.backendresources.api.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@AllArgsConstructor
 public class UserResponse {
     private final String firstName;
     private final String lastName;

@@ -39,8 +39,7 @@ public class UserServiceImpl implements UserService {
             String userId = CreatedResponseUtil.getCreatedId(response);
             log.info("Created UserId: {}", userId);
         } catch (WebApplicationException ex) {
-            log.error("Exception on \"createUser\": ", ex);
-            throw new BackendResourcesException(ex.getMessage(), HttpStatus.resolve(ex.getResponse().getStatus()));
+            throw new BackendResourcesException("Failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -55,8 +54,7 @@ public class UserServiceImpl implements UserService {
                     .users().get(String.valueOf(id)).roles().getAll().getRealmMappings();
             userGroups = keycloakClient.realm(realm).users().get(String.valueOf(id)).groups();
         } catch (RuntimeException ex) {
-            log.error("Exception on \"getUserById\": ", ex);
-            throw new BackendResourcesException(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new BackendResourcesException("Not found", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return userMapper.userRepresentationToUserResponse(userRepresentation, userRoles, userGroups);
     }
