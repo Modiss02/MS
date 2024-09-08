@@ -1,9 +1,10 @@
-package com.itm.space.backendresources.service;
+package com.itm.space.backendresources;
 
 import com.itm.space.backendresources.api.request.UserRequest;
 import com.itm.space.backendresources.api.response.UserResponse;
 import com.itm.space.backendresources.exception.BackendResourcesException;
 import com.itm.space.backendresources.mapper.UserMapper;
+import com.itm.space.backendresources.service.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +51,7 @@ public class UserServiceImplTest {
             .withEnv("KEYCLOAK_USER", "admin")
             .withEnv("KEYCLOAK_PASSWORD", "admin")
             .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(2)))
-            .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger(UserServiceImplTest.class))); // Изменено на текущий класс
+            .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger(UserServiceImplTest.class)));
 
     @MockBean
     private Keycloak keycloakClient;
@@ -76,7 +77,6 @@ public class UserServiceImplTest {
                 keycloakContainer.getHost(),
                 keycloakContainer.getFirstMappedPort());
 
-        // Мокаем Keycloak клиент с URL контейнера
         when(keycloakClient.realm(REALM)).thenReturn(realmResource);
         when(realmResource.users()).thenReturn(usersResource);
         when(usersResource.get(anyString())).thenReturn(userResource);
